@@ -175,7 +175,7 @@ class FolderResource(DAVCollection):
         self.filestat = os.stat(self._filePath)
         # Setting the name from the file path should fix the case on Windows
         self.name = os.path.basename(self._filePath)
-        self.name = self.name.encode("utf8")
+        self.name = self.name#.encode("utf8")
 
 
     # Getter methods for standard live properties
@@ -360,8 +360,36 @@ class FilesystemProvider(DAVProvider):
         assert self.rootFolderPath is not None
         pathInfoParts = path.strip("/").split("/")
 
-        r = os.path.abspath(os.path.join(self.rootFolderPath, *pathInfoParts))
-        if not r.startswith(self.rootFolderPath):
+        # r = os.path.abspath(os.path.join(self.rootFolderPath, *pathInfoParts))
+        try:
+            rp = self.rootFolderPath.decode('utf8')
+        except:
+            try:
+                rp = self.rootFolderPath.decode('mbcs')
+            except:
+                rp = self.rootFolderPath.decode('shiftjis')
+        # rpath = os.path.join(self.rootFolderPath, *pathInfoParts)
+        try:
+            pip = [x.decode('utf8') for x in pathInfoParts]
+        except:
+            try:
+                pip = [x.decode('mbcs') for x in pathInfoParts]
+            except:
+                pip = [x.decode('shiftjis') for x in pathInfoParts]
+
+        #print(repr(rp), repr(pip))
+        # rpath = os.path.join(rp, *pathInfoParts)
+        rpath = os.path.join(rp, *pip)
+
+        try:
+            r = os.path.abspath(rpath.decode('utf8'))
+        except:
+            try:
+              r = os.path.abspath(rpath.decode('mbcs'))
+            except:
+              r = os.path.abspath(rpath.decode('shiftjis'))
+        # if not r.startswith(self.rootFolderPath):
+        if not r.startswith(rp):
             raise RuntimeError("Security exception: tried to access file outside root.")
         r = util.toUnicode(r)
 #        print "_locToFilePath(%s): %s" % (path, r)
