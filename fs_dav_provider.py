@@ -175,7 +175,7 @@ class FolderResource(DAVCollection):
         self.filestat = os.stat(self._filePath)
         # Setting the name from the file path should fix the case on Windows
         self.name = os.path.basename(self._filePath)
-        self.name = self.name#.encode("utf8")
+        self.name = self.name.encode("utf8")
 
 
     # Getter methods for standard live properties
